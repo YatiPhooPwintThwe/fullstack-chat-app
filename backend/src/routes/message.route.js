@@ -22,9 +22,9 @@ router.post("/accept-request/:senderId", protectRoute, acceptChatRequest);
 router.post("/chat-request/:receiverId", protectRoute, sendChatRequest);
 router.delete("/chat/:userId", protectRoute, deleteChat);
 
-// ✅ Dynamic last
-router.get("/send/:id", protectRoute, sendMessage);
-router.get("/:id", protectRoute, getMessages);
+// ✅ Dynamic last (no conflict)
+router.get("/messages-with/:id", protectRoute, getMessages);
+router.post("/send/:id", protectRoute, sendMessage);
 router.put("/:id", protectRoute, updateMessage);
 router.put("/:id/reaction", protectRoute, updateReaction);
 router.delete("/:id", protectRoute, deleteMessage);

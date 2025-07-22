@@ -35,6 +35,7 @@ export const useChatStore = create((set, get) => ({
       set({ selectedUser: { ...selectedUser, ...updatedUser } });
     }
   },
+
   addChattedUser: (user) => {
     const { chattedUsers } = get();
     const exists = chattedUsers.some((u) => u._id === user._id);
@@ -81,14 +82,12 @@ export const useChatStore = create((set, get) => ({
         addChattedUser,
       } = get();
 
-      // If message not intended for current user, skip
       if (![newMessage.senderId, newMessage.receiverId].includes(authUserId))
         return;
 
       const isDuplicate = messages.some((msg) => msg._id === newMessage._id);
       if (isDuplicate) return;
 
-      // If message is for current open chat
       if (
         selectedUser?._id === newMessage.senderId ||
         selectedUser?._id === newMessage.receiverId
@@ -97,8 +96,6 @@ export const useChatStore = create((set, get) => ({
         return;
       }
 
-      // Message from a new/unselected sender
-      // Message from a new/unselected sender
       const isSenderKnown = chattedUsers.some(
         (u) => u._id === newMessage.senderId
       );
@@ -110,8 +107,6 @@ export const useChatStore = create((set, get) => ({
 
           addChattedUser(sender);
           toast.success(`${sender.fullName} sent you a message`);
-
-          // Optional: auto open chat with them
           setSelectedUser(sender);
           await getMessages(sender._id);
 
@@ -120,7 +115,6 @@ export const useChatStore = create((set, get) => ({
           console.error("❌ Failed to fetch sender info:", err);
         }
       } else {
-        // Sender is known but not selected — just notify and don't switch chat
         const newUser = chattedUsers.find((u) => u._id === newMessage.senderId);
         toast.success(`${newUser.fullName} sent you a message`);
       }
@@ -141,13 +135,13 @@ export const useChatStore = create((set, get) => ({
         const sender = res.data;
         toast.success(`${sender.fullName} sent you a chat request`);
 
-        // ✅ Update chatRequests list in Zustand store
         const { chatRequests, setChatRequests } = get();
         setChatRequests([...chatRequests, sender]);
       } catch (err) {
         console.error("❌ Failed to load chat request sender:", err);
       }
     });
+
     socket.on("profileUpdated", (updatedUser) => {
       const state = get();
       const { chattedUsers } = state;
@@ -175,7 +169,9 @@ export const useChatStore = create((set, get) => ({
 
   getMessages: async (userId, signal) => {
     try {
-      const res = await axiosInstance.get(`/messages/${userId}`, { signal });
+      const res = await axiosInstance.get(`/messages/messages-with/${userId}`, {
+        signal,
+      });
       set({ messages: res.data, isMessagesLoading: false });
     } catch (err) {
       if (
