@@ -25,8 +25,10 @@ router.delete("/chat/:userId", protectRoute, deleteChat);
 // ✅ Dynamic last (no conflict)
 router.get("/messages-with/:id", protectRoute, getMessages);
 router.post("/send/:id", protectRoute, sendMessage);
-router.put("/:id", protectRoute, updateMessage);
-router.put("/:id/reaction", protectRoute, updateReaction);
-router.delete("/:id", protectRoute, deleteMessage);
+// NEW (✅ avoid conflict with static paths)
+router.put("/message/:id", protectRoute, updateMessage);
+router.put("/message/:id/reaction", protectRoute, updateReaction);
+router.delete("/message/:id", protectRoute, deleteMessage);
+
 
 export default router;

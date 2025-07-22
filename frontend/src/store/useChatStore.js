@@ -19,10 +19,7 @@ export const useChatStore = create((set, get) => ({
     set({ isMessagesLoading: true });
     try {
       const res = await axiosInstance.get(`/users/${user._id}`);
-      set({
-        selectedUser: res.data,
-        isMessagesLoading: false,
-      });
+      set({ selectedUser: res.data, isMessagesLoading: false });
     } catch (err) {
       console.error("Failed to fetch updated user", err);
       set({ selectedUser: user, isMessagesLoading: false });
@@ -190,7 +187,9 @@ export const useChatStore = create((set, get) => ({
 
   updateReaction: async (messageId, emoji) => {
     try {
-      await axiosInstance.put(`/messages/${messageId}/reaction`, { emoji });
+      await axiosInstance.put(`/messages/message/${messageId}/reaction`, {
+        emoji,
+      });
       set((state) => ({
         messages: state.messages.map((msg) =>
           msg._id === messageId ? { ...msg, reaction: emoji } : msg
@@ -203,7 +202,9 @@ export const useChatStore = create((set, get) => ({
 
   updateMessage: async (messageId, text) => {
     try {
-      const res = await axiosInstance.put(`/messages/${messageId}`, { text });
+      const res = await axiosInstance.put(`/messages/message/${messageId}`, {
+        text,
+      });
       set({
         messages: get().messages.map((msg) =>
           msg._id === messageId ? res.data : msg
@@ -216,7 +217,7 @@ export const useChatStore = create((set, get) => ({
 
   deleteMessage: async (messageId) => {
     try {
-      await axiosInstance.delete(`/messages/${messageId}`);
+      await axiosInstance.delete(`/messages/message/${messageId}`);
       set({
         messages: get().messages.filter((msg) => msg._id !== messageId),
       });
