@@ -1,5 +1,5 @@
 import HomePage from "./pages/HomePage.jsx";
-import SignUpPage from "./pages/SignupPage.jsx";
+import SignUpPage from "./pages/SignUpPage.jsx";
 import LoginPage from "./pages/LoginPage.jsx";
 import SettingsPage from "./pages/SettingsPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
@@ -16,7 +16,7 @@ import { useChatStore } from "./store/useChatStore.js";
 const App = () => {
   const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
   const { theme } = useThemeStore();
-   const { subscribeToMessages, unsubscribeFromMessages } = useChatStore();
+  const { subscribeToMessages, unsubscribeFromMessages } = useChatStore();
 
   useEffect(() => {
     if (!authUser) {
