@@ -7,7 +7,7 @@ import { useLayoutStore } from "../store/useLayoutStore.js";
 import { socket } from "../lib/socket.js";
 
 const SidebarChat = () => {
-  const { chattedUsers, selectedUser, setSelectedUser, addChattedUser } =
+  const { chattedUsers, setSelectedUser, addChattedUser } =
     useChatStore();
   const { onlineUsers, authUser } = useAuthStore();
   const { isSidebarCollapsed, toggleSidebar } = useLayoutStore();
@@ -132,6 +132,7 @@ const SidebarChat = () => {
     </aside>
   );
 };
+
 const SidebarUserItem = ({ user }) => {
   const { selectedUser, setSelectedUser, addChattedUser, deleteChat } =
     useChatStore();
@@ -143,7 +144,7 @@ const SidebarUserItem = ({ user }) => {
   useEffect(() => {
     const fetchFreshUser = async () => {
       try {
-        const res = await axiosInstance.get(`/users/${user._id}`);
+        const res = await axiosInstance.get(`/users/user/${user._id}`);
         setFreshUser(res.data);
       } catch (err) {
         console.error("Failed to refresh user:", err);

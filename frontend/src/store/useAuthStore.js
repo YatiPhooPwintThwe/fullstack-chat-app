@@ -14,8 +14,10 @@ export const useAuthStore = create((set, get) => ({
   isCheckingAuth: true,
   onlineUsers: [],
   socket: null,
+  chattedUsers: [],
   setOnlineUsers: (users) => set({ onlineUsers: users }),
   setAuthUser: (user) => set({ authUser: user }),
+  setChattedUsers: (users) => set({ chattedUsers: users }),
 
   checkAuth: async () => {
     try {
