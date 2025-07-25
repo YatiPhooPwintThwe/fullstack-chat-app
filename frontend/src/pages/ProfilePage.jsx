@@ -12,18 +12,12 @@ const ProfilePage = () => {
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
 
-  
- useEffect(() => {
-  if (authUser) {
-    if (authUser.profilePic && !selectedImg) {
-      setSelectedImg(authUser.profilePic);
+  useEffect(() => {
+    if (authUser) {
+      setFullName(authUser.fullName || "");
+      setEmail(authUser.email || "");
     }
-    if (!fullName) setFullName(authUser.fullName);
-    if (!email) setEmail(authUser.email);
-  }
-}, [authUser]);
-
-
+  }, [authUser]);
 
   const handleImageUpload = async (e) => {
     const file = e.target.files[0];
