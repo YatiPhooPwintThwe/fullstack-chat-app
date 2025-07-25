@@ -7,6 +7,7 @@ import { useAuthStore } from "../store/useAuthStore.js";
 import useSound from "use-sound";
 import ChatMessage from "./ChatMessage.jsx";
 import { socket } from "../lib/socket.js";
+import { axiosInstance } from "../lib/axios.js";
 
 const ChatContainer = () => {
   const {
@@ -22,7 +23,7 @@ const ChatContainer = () => {
   const messageEndRef = useRef(null);
   const [replyingTo, setReplyingTo] = useState(null);
   const [editingMessage, setEditingMessage] = useState(null);
-
+  const [freshSelectedUser, setFreshSelectedUser] = useState(selectedUser);
   const [playReceiveSound] = useSound("/sound/receive.mp3", { volume: 0.5 });
 
   useEffect(() => {
@@ -53,6 +54,33 @@ const ChatContainer = () => {
     unsubscribeFromMessages,
     playReceiveSound,
   ]);
+   useEffect(() => {
+    if (!selectedUser?._id) return;
+
+    const fetchFreshUser = async () => {
+      try {
+        const res = await axiosInstance.get(`/users/user/${selectedUser._id}`);
+        setFreshSelectedUser(res.data);
+      } catch (err) {
+        console.error("Failed to fetch user:", err);
+      }
+    };
+
+    fetchFreshUser();
+    const interval = setInterval(fetchFreshUser, 5000);
+    return () => clearInterval(interval);
+  }, [selectedUser?._id]);
+
+  useEffect(() => {
+    const handleProfileUpdated = (updatedUser) => {
+      if (updatedUser._id === selectedUser?._id) {
+        setFreshSelectedUser((prev) => ({ ...prev, ...updatedUser }));
+      }
+    };
+
+    socket.on("profileUpdated", handleProfileUpdated);
+    return () => socket.off("profileUpdated", handleProfileUpdated);
+  }, [selectedUser?._id]);
 
   useEffect(() => {
     if (messageEndRef.current && messages) {
@@ -63,30 +91,18 @@ const ChatContainer = () => {
   if (isMessagesLoading) {
     return (
       <div className="flex-1 flex flex-col overflow-hidden">
-        <ChatHeader />
+        <ChatHeader selectedUser={freshSelectedUser}/>
         <MessageSkeleton />
         {/* No wrapper around MessageInput */}
         <MessageInput />
       </div>
     );
   }
- useEffect(() => {
-  const handleProfileUpdated = (updatedUser) => {
-    if (updatedUser._id === selectedUser?._id) {
-      useChatStore.setState((state) => ({
-        selectedUser: { ...state.selectedUser, ...updatedUser },
-      }));
-    }
-  };
-
-  socket.on("profileUpdated", handleProfileUpdated);
-  return () => socket.off("profileUpdated", handleProfileUpdated);
-}, [selectedUser?._id]);
 
 
   return (
     <div className="flex flex-col overflow-hidden h-full pb-4">
-      <ChatHeader />
+      <ChatHeader selectedUser={freshSelectedUser}/>
       <div
         className="flex-1 overflow-y-auto p-4 space-y-4"
         onClick={() => window.dispatchEvent(new Event("closeEmoji"))}
@@ -99,7 +115,7 @@ const ChatContainer = () => {
             <ChatMessage
               message={message}
               authUser={authUser}
-              selectedUser={selectedUser}
+              selectedUser={freshSelectedUser}
               onReply={setReplyingTo}
               onEdit={setEditingMessage}
             />

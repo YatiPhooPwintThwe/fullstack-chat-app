@@ -29,10 +29,8 @@ const ProfilePage = () => {
 
     reader.onload = async () => {
     const base64Image = reader.result;
-    const success = await updateProfileImage(base64Image);
-    if (success) {
-      setSelectedImg(base64Image);
-    }
+    await updateProfileImage(base64Image);
+    
     };
   };
 
@@ -69,7 +67,7 @@ const ProfilePage = () => {
             <div className="flex flex-col items-center gap-4">
               <div className="relative">
                 <img
-                  src={selectedImg || authUser?.profilePic || "/profile.png"}
+                  src={authUser?.profilePic || "/profile.png"}
                   alt="Profile"
                   className="w-24 h-24 rounded-full object-cover border-4"
                 />

@@ -1,26 +1,41 @@
 import { useState, useRef, useEffect } from "react";
 import { useChatStore } from "../store/useChatStore.js";
 import { formatMessageTime } from "../lib/utils.js";
-import { socket } from "../lib/socket.js"; // ✅ Socket import
+import { socket } from "../lib/socket.js";
+import { axiosInstance } from "../lib/axios.js";
 
 const ChatMessage = ({ message, authUser, selectedUser, onReply, onEdit }) => {
   const { updateReaction, deleteMessage } = useChatStore();
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [showMenu, setShowMenu] = useState(false);
+  const [freshUser, setFreshUser] = useState(selectedUser); // ✅ use freshUser
   const settingsRef = useRef(null);
 
   const isSender = message.senderId === authUser._id;
 
-  const [updatedSelectedUser, setUpdatedSelectedUser] = useState(selectedUser);
+  useEffect(() => {
+    setFreshUser(selectedUser);
+  }, [selectedUser]);
 
   useEffect(() => {
-    setUpdatedSelectedUser(selectedUser); // Reset when prop changes
-  }, [selectedUser]);
+    const fetchFreshUser = async () => {
+      try {
+        const res = await axiosInstance.get(`/users/user/${selectedUser._id}`);
+        setFreshUser(res.data);
+      } catch (err) {
+        console.error("Failed to fetch user:", err);
+      }
+    };
+
+    fetchFreshUser();
+    const interval = setInterval(fetchFreshUser, 5000);
+    return () => clearInterval(interval);
+  }, [selectedUser._id]);
 
   useEffect(() => {
     const handleProfileUpdated = (updatedUser) => {
       if (updatedUser._id === selectedUser._id) {
-        setUpdatedSelectedUser((prev) => ({
+        setFreshUser((prev) => ({
           ...prev,
           ...updatedUser,
         }));
@@ -81,34 +96,21 @@ const ChatMessage = ({ message, authUser, selectedUser, onReply, onEdit }) => {
   }, [showMenu]);
 
   return (
-    <div
-      className={`flex items-end mb-4 ${
-        isSender ? "justify-end" : "justify-start"
-      }`}
-    >
-      <div
-        className={`flex items-end gap-2 ${
-          isSender ? "flex-row-reverse" : "flex-row"
-        }`}
-      >
+    <div className={`flex items-end mb-4 ${isSender ? "justify-end" : "justify-start"}`}>
+      <div className={`flex items-end gap-2 ${isSender ? "flex-row-reverse" : "flex-row"}`}>
         {/* Avatar */}
         <div className="w-10 h-10 rounded-full overflow-hidden">
           <img
             src={
               isSender
                 ? authUser.profilePic || "/profile.png"
-                : updatedSelectedUser?.profilePic || "/profile.png"
+                : freshUser?.profilePic || "/profile.png"
             }
             alt={isSender ? "sender" : "receiver"}
           />
         </div>
 
-        <div
-          className={`group flex items-center ${
-            isSender ? "flex-row-reverse" : "flex-row"
-          }`}
-        >
-          {/* Message Content */}
+        <div className={`group flex items-center ${isSender ? "flex-row-reverse" : "flex-row"}`}>
           <div className="flex flex-col relative">
             <div className="text-center text-xs text-zinc-500 mb-1">
               {formatMessageTime(message.createdAt)}
@@ -119,7 +121,7 @@ const ChatMessage = ({ message, authUser, selectedUser, onReply, onEdit }) => {
                 {message.replyTo.image && (
                   <img
                     src={message.replyTo.image}
-                    alt="Replied image"
+                    alt="Replied"
                     className="rounded-md max-h-[100px] mb-1"
                   />
                 )}
@@ -162,14 +164,12 @@ const ChatMessage = ({ message, authUser, selectedUser, onReply, onEdit }) => {
             )}
           </div>
 
-          {/* Action Buttons (visible on hover) */}
+          {/* Action Buttons */}
           <div className="relative flex gap-2 ml-2">
             <div className="hidden group-hover:flex items-center gap-2 z-10 mt-3">
               {isSender && (
                 <>
-                  <button onClick={toggleMenu} title="More">
-                    ⋮
-                  </button>
+                  <button onClick={toggleMenu} title="More">⋮</button>
                   {showMenu && (
                     <div
                       ref={settingsRef}
@@ -193,12 +193,8 @@ const ChatMessage = ({ message, authUser, selectedUser, onReply, onEdit }) => {
                   )}
                 </>
               )}
-              <button onClick={toggleEmojiPicker} title="React">
-                😊
-              </button>
-              <button onClick={handleReply} title="Reply">
-                ↩️
-              </button>
+              <button onClick={toggleEmojiPicker} title="React">😊</button>
+              <button onClick={handleReply} title="Reply">↩️</button>
             </div>
           </div>
         </div>
