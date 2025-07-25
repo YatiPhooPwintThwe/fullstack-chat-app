@@ -7,7 +7,8 @@ import toast from "react-hot-toast";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const { authUser, isUpdatingProfile, updateProfile, logout } = useAuthStore();
+  const { authUser, isUpdatingProfile, updateProfileImage,
+    updateProfileInfo, logout } = useAuthStore();
   const [selectedImg, setSelectedImg] = useState(null);
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -30,7 +31,7 @@ const ProfilePage = () => {
       const base64Image = reader.result;
       console.log("Uploading base64 image:", base64Image.slice(0, 50));
       setSelectedImg(base64Image);
-      await updateProfile({ profilePic: base64Image });
+      await updateProfileImage({ profilePic: base64Image });
     };
   };
 
@@ -41,7 +42,7 @@ const ProfilePage = () => {
       return toast.error("Invalid email format");
     }
 
-    const success = await updateProfile({ fullName, email });
+    const success = await updateProfileInfo({ fullName, email });
 
     if (success && emailChanged) {
       localStorage.setItem("emailChanged", "true");

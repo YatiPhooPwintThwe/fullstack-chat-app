@@ -85,26 +85,39 @@ export const useAuthStore = create((set, get) => ({
     }
   },
 
-  updateProfile: async (data) => {
-    set({ isUpdatingProfile: true });
+  updateProfileImage: async (base64Image) => {
+    set({ isUploadingImage: true });
     try {
-      const res = await axiosInstance.put("/auth/update-profile", data, {
-        withCredentials: true,
+      const res = await axiosInstance.put("/auth/update-profile", {
+        profilePic: base64Image,
       });
       set({ authUser: res.data.user });
-      toast.success("Profile updated successfully!");
+      toast.success("Image updated!");
+    } catch (error) {
+      toast.error(error?.response?.data?.message || "Upload failed");
+    } finally {
+      set({ isUploadingImage: false });
+    }
+  },
+
+  updateProfileInfo: async ({ fullName, email }) => {
+    set({ isUpdatingProfile: true });
+    try {
+      const res = await axiosInstance.put("/auth/update-profile", {
+        fullName,
+        email,
+      });
+      set({ authUser: res.data.user });
+      toast.success("Profile info updated!");
       return true;
     } catch (error) {
-      console.log(
-        "Error updating profile:",
-        error?.response?.data || error.message
-      );
-      toast.error(error?.response?.data?.message || "Failed to update profile");
+      toast.error(error?.response?.data?.message || "Update failed");
       return false;
     } finally {
       set({ isUpdatingProfile: false });
     }
   },
+
   verifyEmail: async (code) => {
     try {
       const res = await axiosInstance.post("/auth/verify-email", { code });
@@ -148,22 +161,23 @@ export const useAuthStore = create((set, get) => ({
       set({ onlineUsers: userIds });
     });
 
-    newSocket.on("profileUpdated", (updatedUser) => {
-      const state = get();
-      const { authUser, chattedUsers } = state;
+     newSocket.on("profileUpdated", (updatedUser) => {
+      set((state) => {
+        const updatedState = {};
 
-  // Update your own profile if this is you
-  if (authUser && authUser._id === updatedUser._id) {
-    set({ authUser: { ...authUser, ...updatedUser } });
-  }
+        if (state.authUser && state.authUser._id === updatedUser._id) {
+          updatedState.authUser = { ...state.authUser, ...updatedUser };
+        }
 
-  // Update chatted users
-  if (chattedUsers && chattedUsers.length > 0) {
-    const updatedChattedUsers = chattedUsers.map((u) =>
-      u._id === updatedUser._id ? { ...u, ...updatedUser } : u
-    );
-    set({ chattedUsers: updatedChattedUsers });
-    }});
+        if (state.chattedUsers.length > 0) {
+          updatedState.chattedUsers = state.chattedUsers.map((u) =>
+            u._id === updatedUser._id ? { ...u, ...updatedUser } : u
+          );
+        }
+
+        return updatedState;
+      });
+    });
 
     set({ socket: newSocket });
   },
