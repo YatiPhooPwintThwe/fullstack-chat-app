@@ -1,4 +1,3 @@
-
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../lib/axios.js";
@@ -19,11 +18,8 @@ export const useChatStore = create((set, get) => ({
   setSelectedUser: async (user) => {
     set({ isMessagesLoading: true });
     try {
-      const res = await axiosInstance.get(`/users/${user._id}`);
-      set({
-        selectedUser: res.data,
-        isMessagesLoading: false,
-      });
+      const res = await axiosInstance.get(`/users/user/${user._id}`);
+      set({ selectedUser: res.data, isMessagesLoading: false });
     } catch (err) {
       console.error("Failed to fetch updated user", err);
       set({ selectedUser: user, isMessagesLoading: false });
@@ -103,7 +99,9 @@ export const useChatStore = create((set, get) => ({
 
       if (!isSenderKnown) {
         try {
-          const res = await axiosInstance.get(`/users/${newMessage.senderId}`);
+          const res = await axiosInstance.get(
+            `/users/user/${newMessage.senderId}`
+          );
           const sender = res.data;
 
           addChattedUser(sender);
@@ -132,7 +130,7 @@ export const useChatStore = create((set, get) => ({
 
     socket.on("chatRequest", async ({ senderId }) => {
       try {
-        const res = await axiosInstance.get(`/users/${senderId}`);
+        const res = await axiosInstance.get(`/users/user/${senderId}`);
         const sender = res.data;
         toast.success(`${sender.fullName} sent you a chat request`);
 
@@ -166,7 +164,6 @@ export const useChatStore = create((set, get) => ({
     socket?.off("newMessage");
     socket?.off("updatedMessage");
     socket?.off("chatRequest");
-    socket?.off("profileUpdated");
   },
 
   getMessages: async (userId, signal) => {
@@ -191,7 +188,6 @@ export const useChatStore = create((set, get) => ({
   updateReaction: async (messageId, emoji) => {
     try {
       await axiosInstance.put(`/messages/react/${messageId}`, { emoji });
-
       set((state) => ({
         messages: state.messages.map((msg) =>
           msg._id === messageId ? { ...msg, reaction: emoji } : msg
@@ -204,7 +200,9 @@ export const useChatStore = create((set, get) => ({
 
   updateMessage: async (messageId, text) => {
     try {
-      const res = await axiosInstance.put(`/messages/update/${messageId}`, { text });
+      const res = await axiosInstance.put(`/messages/update/${messageId}`, {
+        text,
+      });
       set({
         messages: get().messages.map((msg) =>
           msg._id === messageId ? res.data : msg
@@ -257,7 +255,7 @@ export const useChatStore = create((set, get) => ({
       await axiosInstance.post(`/messages/accept-request/${senderId}`);
       await get().fetchChatRequests();
 
-      const res = await axiosInstance.get(`/users/${senderId}`);
+      const res = await axiosInstance.get(`/users/user/${senderId}`);
       get().addChattedUser(res.data);
       get().setSelectedUser(res.data);
       await get().getMessages(senderId);
