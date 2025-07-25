@@ -230,15 +230,15 @@ export const updateProfile = async (req, res) => {
 
     await user.save();
 
-    const io = req.app.get("io"); // if using app.set("io", io) in server.js
-
-    io.emit("profileUpdated", {
-      _id: user._id,
-      fullName: user.fullName,
-      email: user.email,
-      profilePic: user.profilePic,
-      isVerified: user.isVerified,
-    });
+    const io = req.app.get("io");
+if (io) {
+  io.emit("profileUpdated", {
+    _id: user._id,
+    fullName: user.fullName,
+    email: user.email,
+    profilePic: user.profilePic,
+    isVerified: user.isVerified,
+  });
 
     // ✅ Send response back to the frontend
     res.status(200).json({
@@ -281,7 +281,7 @@ export const forgotPassword = async (req, res) => {
       user.email,
       `${process.env.CLIENT_URL}/reset-password/${resetToken}`
     );
-    
+
 
     res.status(200).json({
       success: true,
