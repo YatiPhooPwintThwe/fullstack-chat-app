@@ -6,7 +6,7 @@ const userSocketMap = {}; // { userId: socketId }
 export const initSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: "http://localhost:5173", // ✅ or your deployed frontend domain
+      origin: process.env.CLIENT_URL, // ✅ or your deployed frontend domain
       credentials: true,
     },
   });
