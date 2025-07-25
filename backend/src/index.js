@@ -8,12 +8,14 @@ import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
 import messageRoutes from "./routes/message.route.js";
 import { connectDB } from "./lib/db.js";
-import { app, server, initSocket } from "./lib/socket.js";
+import { initSocket } from "./lib/socket.js";
 
 dotenv.config();
 
 const PORT = process.env.PORT || 5001;
 const __dirname = path.resolve();
+const app = express();
+const server = http.createServer(app);
 
 // ✅ Middleware
 app.use(express.json({ limit: "5mb" }));
