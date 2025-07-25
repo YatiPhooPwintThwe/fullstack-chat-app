@@ -231,26 +231,27 @@ export const updateProfile = async (req, res) => {
     await user.save();
 
     const io = req.app.get("io");
-if (io) {
-  io.emit("profileUpdated", {
-    _id: user._id,
-    fullName: user.fullName,
-    email: user.email,
-    profilePic: user.profilePic,
-    isVerified: user.isVerified,
-  });
-
-    // ✅ Send response back to the frontend
-    res.status(200).json({
-      message: "Profile updated successfully",
-      user: {
+    if (io) {
+      io.emit("profileUpdated", {
         _id: user._id,
         fullName: user.fullName,
         email: user.email,
         profilePic: user.profilePic,
         isVerified: user.isVerified,
-      },
-    });
+      });
+
+      // ✅ Send response back to the frontend
+      res.status(200).json({
+        message: "Profile updated successfully",
+        user: {
+          _id: user._id,
+          fullName: user.fullName,
+          email: user.email,
+          profilePic: user.profilePic,
+          isVerified: user.isVerified,
+        },
+      });
+    }
   } catch (error) {
     console.log("Error in update profile", error);
     res.status(500).json({ message: "Internal server error" });
@@ -281,7 +282,6 @@ export const forgotPassword = async (req, res) => {
       user.email,
       `${process.env.CLIENT_URL}/reset-password/${resetToken}`
     );
-
 
     res.status(200).json({
       success: true,
