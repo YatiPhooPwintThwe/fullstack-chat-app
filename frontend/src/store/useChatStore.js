@@ -11,9 +11,9 @@ export const useChatStore = create((set, get) => ({
   chattedUsers: JSON.parse(localStorage.getItem(LOCAL_KEY)) || [],
   selectedUser: null,
   isMessagesLoading: false,
-  
+  chatRequests: [],
 
-  
+  setChatRequests: (requests) => set({ chatRequests: requests }),
 
   setSelectedUser: async (user) => {
     set({ isMessagesLoading: true });
@@ -128,7 +128,18 @@ export const useChatStore = create((set, get) => ({
       });
     });
 
-   
+    socket.on("chatRequest", async ({ senderId }) => {
+      try {
+        const res = await axiosInstance.get(`/users/user/${senderId}`);
+        const sender = res.data;
+        toast.success(`${sender.fullName} sent you a chat request`);
+
+        const { chatRequests, setChatRequests } = get();
+        setChatRequests([...chatRequests, sender]);
+      } catch (err) {
+        console.error("❌ Failed to load chat request sender:", err);
+      }
+    });
 
     socket.on("profileUpdated", (updatedUser) => {
       const state = get();
@@ -152,14 +163,12 @@ export const useChatStore = create((set, get) => ({
     const socket = useAuthStore.getState().socket;
     socket?.off("newMessage");
     socket?.off("updatedMessage");
-   
+    socket?.off("chatRequest");
   },
 
   getMessages: async (userId, signal) => {
     try {
-      const res = await axiosInstance.get(`/messages/${userId}`, {
-        signal,
-      });
+      const res = await axiosInstance.get(`/messages/${userId}`, { signal });
       set({ messages: res.data, isMessagesLoading: false });
     } catch (err) {
       if (
@@ -178,9 +187,7 @@ export const useChatStore = create((set, get) => ({
 
   updateReaction: async (messageId, emoji) => {
     try {
-      await axiosInstance.put(`/messages/react/${messageId}/`, {
-        emoji,
-      });
+      await axiosInstance.put(`/messages/react/${messageId}`, { emoji });
       set((state) => ({
         messages: state.messages.map((msg) =>
           msg._id === messageId ? { ...msg, reaction: emoji } : msg
@@ -234,7 +241,26 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  fetchChatRequests: async () => {
+    try {
+      const res = await axiosInstance.get("/messages/chat-requests");
+      set({ chatRequests: res.data });
+    } catch (err) {
+      toast.error("Failed to fetch chat requests");
+    }
+  },
 
+  acceptChatRequest: async (senderId) => {
+    try {
+      await axiosInstance.post(`/messages/accept-request/${senderId}`);
+      await get().fetchChatRequests();
 
-  
+      const res = await axiosInstance.get(`/users/user/${senderId}`);
+      get().addChattedUser(res.data);
+      get().setSelectedUser(res.data);
+      await get().getMessages(senderId);
+    } catch (err) {
+      toast.error("Failed to accept request");
+    }
+  },
 }));
