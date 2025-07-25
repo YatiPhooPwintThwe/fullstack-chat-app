@@ -6,6 +6,7 @@ import MessageSkeleton from "./skeletons/MessageSkeleton.jsx";
 import { useAuthStore } from "../store/useAuthStore.js";
 import useSound from "use-sound";
 import ChatMessage from "./ChatMessage.jsx";
+import { socket } from "../lib/socket.js";
 
 const ChatContainer = () => {
   const {
@@ -69,6 +70,19 @@ const ChatContainer = () => {
       </div>
     );
   }
+ useEffect(() => {
+  const handleProfileUpdated = (updatedUser) => {
+    if (updatedUser._id === selectedUser?._id) {
+      useChatStore.setState((state) => ({
+        selectedUser: { ...state.selectedUser, ...updatedUser },
+      }));
+    }
+  };
+
+  socket.on("profileUpdated", handleProfileUpdated);
+  return () => socket.off("profileUpdated", handleProfileUpdated);
+}, [selectedUser?._id]);
+
 
   return (
     <div className="flex flex-col overflow-hidden h-full pb-4">
