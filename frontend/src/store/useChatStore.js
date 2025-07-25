@@ -11,9 +11,9 @@ export const useChatStore = create((set, get) => ({
   chattedUsers: JSON.parse(localStorage.getItem(LOCAL_KEY)) || [],
   selectedUser: null,
   isMessagesLoading: false,
-  chatRequests: [],
+  
 
-  setChatRequests: (requests) => set({ chatRequests: requests }),
+  
 
   setSelectedUser: async (user) => {
     set({ isMessagesLoading: true });
@@ -128,18 +128,7 @@ export const useChatStore = create((set, get) => ({
       });
     });
 
-    socket.on("chatRequest", async ({ senderId }) => {
-      try {
-        const res = await axiosInstance.get(`/users/user/${senderId}`);
-        const sender = res.data;
-        toast.success(`${sender.fullName} sent you a chat request`);
-
-        const { chatRequests, setChatRequests } = get();
-        setChatRequests([...chatRequests, sender]);
-      } catch (err) {
-        console.error("❌ Failed to load chat request sender:", err);
-      }
-    });
+   
 
     socket.on("profileUpdated", (updatedUser) => {
       const state = get();
@@ -163,12 +152,12 @@ export const useChatStore = create((set, get) => ({
     const socket = useAuthStore.getState().socket;
     socket?.off("newMessage");
     socket?.off("updatedMessage");
-    socket?.off("chatRequest");
+   
   },
 
   getMessages: async (userId, signal) => {
     try {
-      const res = await axiosInstance.get(`/messages/messages-with/${userId}`, {
+      const res = await axiosInstance.get(`/messages/${userId}`, {
         signal,
       });
       set({ messages: res.data, isMessagesLoading: false });
@@ -189,7 +178,7 @@ export const useChatStore = create((set, get) => ({
 
   updateReaction: async (messageId, emoji) => {
     try {
-      await axiosInstance.put(`/messages/message/${messageId}/reaction`, {
+      await axiosInstance.put(`/messages/react/${messageId}/reaction`, {
         emoji,
       });
       set((state) => ({
@@ -204,7 +193,7 @@ export const useChatStore = create((set, get) => ({
 
   updateMessage: async (messageId, text) => {
     try {
-      const res = await axiosInstance.put(`/messages/message/${messageId}`, {
+      const res = await axiosInstance.put(`/messages/update/${messageId}`, {
         text,
       });
       set({
@@ -219,7 +208,7 @@ export const useChatStore = create((set, get) => ({
 
   deleteMessage: async (messageId) => {
     try {
-      await axiosInstance.delete(`/messages/message/${messageId}`);
+      await axiosInstance.delete(`/messages/delete/${messageId}`);
       set({
         messages: get().messages.filter((msg) => msg._id !== messageId),
       });

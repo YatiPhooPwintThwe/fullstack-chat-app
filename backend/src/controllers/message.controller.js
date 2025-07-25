@@ -9,7 +9,7 @@ export const getUsersForSidebar = async (req, res) => {
     const loggedInUserId = req.user._id;
     const filteredUsers = await User.find({
       _id: { $ne: loggedInUserId },
-    }).select("fullName profilePic lastSeen");
+    }).select("-password");
 
     res.status(200).json(filteredUsers);
   } catch (error) {
@@ -151,60 +151,7 @@ export const deleteChat = async (req, res) => {
   }
 };
 
-export const sendChatRequest = async (req, res) => {
-  const senderId = req.user._id;
-  const { receiverId } = req.params;
-
-  const receiver = await User.findById(receiverId);
-  if (!receiver) return res.status(404).json({ message: "User not found" });
-
-  const alreadyRequested = receiver.chatRequests?.some(
-    (r) => r.senderId.toString() === senderId.toString()
-  );
-  if (alreadyRequested)
-    return res.status(400).json({ message: "Already requested" });
-
-  receiver.chatRequests.push({ senderId });
-  await receiver.save();
-
-  // ✅ Emit real-time event via socket.io
-  req.app.get("io").to(receiverId.toString()).emit("chatRequest", { senderId });
-
-  res.status(200).json({ message: "Chat request sent" });
-};
-
-// ✅ Get chat requests
-// controllers/user.controller.js
-export const getChatRequests = async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id)
-      .populate("chatRequests.senderId", "fullName profilePic");
-
-    const requests = user.chatRequests.map((r) => ({
-      _id: r.senderId._id,
-      fullName: r.senderId.fullName,
-      profilePic: r.senderId.profilePic,
-      createdAt: r.createdAt,
-    }));
-
-    res.status(200).json(requests);
-  } catch (err) {
-    console.error("getChatRequests error:", err.message);
-    res.status(500).json({ message: "Failed to fetch chat requests" });
-  }
-};
 
 
 
-
-// ✅ Accept chat request
-export const acceptChatRequest = async (req, res) => {
-  const receiver = await User.findById(req.user._id);
-  receiver.chatRequests = receiver.chatRequests.filter(
-    (r) => r.senderId.toString() !== req.params.senderId
-  );
-  await receiver.save();
-
-  res.status(200).json({ message: "Request accepted" });
-};
 

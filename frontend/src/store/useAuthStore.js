@@ -150,7 +150,7 @@ export const useAuthStore = create((set, get) => ({
 
     newSocket.on("profileUpdated", (updatedUser) => {
       const state = get();
-  const { authUser, chattedUsers } = state;
+      const { authUser, chattedUsers } = state;
 
   // Update your own profile if this is you
   if (authUser && authUser._id === updatedUser._id) {
