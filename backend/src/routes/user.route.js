@@ -5,6 +5,6 @@ import { searchUsers, getUserById } from "../controllers/user.controller.js";
 const router = express.Router();
 
 router.get("/search", protectRoute, searchUsers);
-router.get("/user/:id", protectRoute, getUserById);
+router.get("/:id", protectRoute, getUserById);
 
 export default router;

@@ -178,7 +178,7 @@ export const useChatStore = create((set, get) => ({
 
   updateReaction: async (messageId, emoji) => {
     try {
-      await axiosInstance.put(`/messages/react/${messageId}/reaction`, {
+      await axiosInstance.put(`/messages/react/${messageId}/`, {
         emoji,
       });
       set((state) => ({
@@ -234,26 +234,7 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
-  fetchChatRequests: async () => {
-    try {
-      const res = await axiosInstance.get("/messages/chat-requests");
-      set({ chatRequests: res.data });
-    } catch (err) {
-      toast.error("Failed to fetch chat requests");
-    }
-  },
 
-  acceptChatRequest: async (senderId) => {
-    try {
-      await axiosInstance.post(`/messages/accept-request/${senderId}`);
-      await get().fetchChatRequests();
 
-      const res = await axiosInstance.get(`/users/user/${senderId}`);
-      get().addChattedUser(res.data);
-      get().setSelectedUser(res.data);
-      await get().getMessages(senderId);
-    } catch (err) {
-      toast.error("Failed to accept request");
-    }
-  },
+  
 }));

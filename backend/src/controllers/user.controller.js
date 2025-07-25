@@ -7,7 +7,7 @@ export const searchUsers = async (req, res) => {
   try {
     const users = await User.find({
       fullName: { $regex: query, $options: "i" },
-    }).select("_id fullName profilePic lastSeen"); // Send only needed fields
+    }).select("_id fullName profilePic"); // Send only needed fields
 
     res.json(users);
   } catch (error) {

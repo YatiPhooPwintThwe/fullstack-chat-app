@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+
 
 const NewMessagePopup = ({ sender, onClose }) => {
   if (!sender) return null;
