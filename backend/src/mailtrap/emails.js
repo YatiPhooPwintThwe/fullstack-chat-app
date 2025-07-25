@@ -1,3 +1,5 @@
+import dotenv from "dotenv";
+dotenv.config();
 import {
   PASSWORD_RESET_REQUEST_TEMPLATE,
   PASSWORD_RESET_SUCCESS_TEMPLATE,

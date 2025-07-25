@@ -22,7 +22,7 @@ app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: "http://localhost:5173", // Replace with your frontend domain in production
+    origin: process.env.CLIENT_URL, // Replace with your frontend domain in production
     credentials: true,
   })
 );

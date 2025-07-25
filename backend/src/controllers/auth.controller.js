@@ -1,3 +1,4 @@
+
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { generateToken } from "../lib/utils.js";
@@ -275,10 +276,10 @@ export const forgotPassword = async (req, res) => {
 
     //send email
     
-    await sendPasswordResetEmail(
-      user.email,
-      `${process.env.CLIENT_URL}/reset-password/${resetToken}`
-    );
+    const resetLink = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
+    console.log("🔗 Reset Link:", resetLink); // Debug
+
+    await sendPasswordResetEmail(user.email, resetLink);
 
     res.status(200).json({
       success: true,
