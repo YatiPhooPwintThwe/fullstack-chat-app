@@ -91,7 +91,9 @@ export const useAuthStore = create((set, get) => ({
       const res = await axiosInstance.put("/auth/update-profile", {
         profilePic: base64Image,
       });
-      set({ authUser: res.data.user });
+      set((state) => ({
+      authUser: { ...state.authUser, ...res.data.user },
+    }));
       toast.success("Image updated!");
     } catch (error) {
       toast.error(error?.response?.data?.message || "Upload failed");
@@ -107,7 +109,9 @@ export const useAuthStore = create((set, get) => ({
         fullName,
         email,
       });
-      set({ authUser: res.data.user });
+      set((state) => ({
+      authUser: { ...state.authUser, ...res.data.user },
+    }));
       toast.success("Profile info updated!");
       return true;
     } catch (error) {

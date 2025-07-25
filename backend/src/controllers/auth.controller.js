@@ -187,7 +187,7 @@ export const updateProfile = async (req, res) => {
     // Handle profile picture
     if (profilePic) {
       try {
-        console.log("Uploading to Cloudinary...");
+        
         const uploadResponse = await cloudinary.uploader.upload(profilePic);
         user.profilePic = uploadResponse.secure_url;
       } catch (err) {
@@ -230,34 +230,31 @@ export const updateProfile = async (req, res) => {
 
     await user.save();
 
+   
+    const updatedUser = {
+      _id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      profilePic: user.profilePic,
+      isVerified: user.isVerified,
+    };
+
+    // ✅ Emit socket (if exists)
     const io = req.app.get("io");
     if (io) {
-      io.emit("profileUpdated", {
-        _id: user._id,
-        fullName: user.fullName,
-        email: user.email,
-        profilePic: user.profilePic,
-        isVerified: user.isVerified,
-      });
-
-      // ✅ Send response back to the frontend
-      res.status(200).json({
-        message: "Profile updated successfully",
-        user: {
-          _id: user._id,
-          fullName: user.fullName,
-          email: user.email,
-          profilePic: user.profilePic,
-          isVerified: user.isVerified,
-        },
-      });
+      io.emit("profileUpdated", updatedUser);
     }
+
+    // ✅ Always send response (no matter io exists or not)
+    return res.status(200).json({
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
   } catch (error) {
-    console.log("Error in update profile", error);
-    res.status(500).json({ message: "Internal server error" });
+    console.error("Error in update profile:", error.message);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
-
 export const forgotPassword = async (req, res) => {
   const { email } = req.body;
   try {
