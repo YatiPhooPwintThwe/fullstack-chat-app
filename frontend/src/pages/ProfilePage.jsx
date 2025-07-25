@@ -13,11 +13,16 @@ const ProfilePage = () => {
   const [email, setEmail] = useState("");
 
   
-  useEffect(() => {
-  if (authUser?.profilePic && !selectedImg) {
-    setSelectedImg(authUser.profilePic);
+ useEffect(() => {
+  if (authUser) {
+    if (authUser.profilePic && !selectedImg) {
+      setSelectedImg(authUser.profilePic);
+    }
+    if (!fullName) setFullName(authUser.fullName);
+    if (!email) setEmail(authUser.email);
   }
-}, [authUser?.profilePic]);
+}, [authUser]);
+
 
 
   const handleImageUpload = async (e) => {
