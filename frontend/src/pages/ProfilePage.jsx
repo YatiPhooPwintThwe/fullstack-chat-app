@@ -28,10 +28,11 @@ const ProfilePage = () => {
     reader.readAsDataURL(file);
 
     reader.onload = async () => {
-      const base64Image = reader.result;
-      console.log("Uploading base64 image:", base64Image.slice(0, 50));
+    const base64Image = reader.result;
+    const success = await updateProfileImage(base64Image);
+    if (success) {
       setSelectedImg(base64Image);
-      await updateProfileImage({ profilePic: base64Image });
+    }
     };
   };
 

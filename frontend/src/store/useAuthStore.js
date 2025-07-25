@@ -95,8 +95,10 @@ export const useAuthStore = create((set, get) => ({
       authUser: { ...state.authUser, ...res.data.user },
     }));
       toast.success("Image updated!");
+      return true;
     } catch (error) {
       toast.error(error?.response?.data?.message || "Upload failed");
+      return false;
     } finally {
       set({ isUploadingImage: false });
     }
