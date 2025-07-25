@@ -2,7 +2,7 @@ import User from "../models/user.model.js";
 import Message from "../models/message.model.js";
 
 import cloudinary from "../lib/cloudinary.js";
-import { getReceiverSocketId, io } from "../lib/socket.js";
+import { getReceiverSocketId, getIO } from "../lib/socket.js";
 
 export const getUsersForSidebar = async (req, res) => {
   try {
@@ -62,7 +62,9 @@ export const sendMessage = async (req, res) => {
 
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
+      const io = getIO();
       io.to(receiverSocketId).emit("newMessage", newMessage);
+
     }
 
     res.status(201).json(newMessage);
@@ -85,6 +87,7 @@ export const updateMessage = async (req, res) => {
     // Emit updated message to the receiver
     const receiverSocketId = getReceiverSocketId(message.receiverId.toString());
     if (receiverSocketId) {
+      const io = getIO();
       io.to(receiverSocketId).emit("updatedMessage", message);
     }
   } catch (err) {
@@ -101,10 +104,12 @@ export const updateReaction = async (req, res) => {
     ).lean();
     const senderId = message.senderId.toString();
     const receiverId = message.receiverId.toString();
+    const io = getIO();
 
     // Emit to the receiver (if they are online)
     const receiverSocketId = getReceiverSocketId(receiverId);
     if (receiverSocketId) {
+      
       io.to(receiverSocketId).emit("updatedMessage", message);
     }
 
