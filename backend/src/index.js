@@ -44,9 +44,11 @@ if (process.env.NODE_ENV === "production") {
 // ✅ Start server after DB connection
 connectDB()
   .then(() => {
+    const io = initSocket(server); // ✅ get socket instance
+    app.set("io", io);
     server.listen(PORT, () => {
       console.log(`✅ Server running on port ${PORT}`);
-      initSocket(server); // Setup WebSocket
+      
     });
   })
   .catch((err) => {
