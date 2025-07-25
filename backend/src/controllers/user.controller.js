@@ -16,8 +16,14 @@ export const searchUsers = async (req, res) => {
   }
 };
 export const getUserById = async (req, res) => {
+  const { id } = req.params;
+
+  if (!id || id === "undefined") {
+    return res.status(400).json({ message: "Invalid or missing user ID" });
+  }
+
   try {
-    const user = await User.findById(req.params.id).select("_id fullName profilePic");
+    const user = await User.findById(id).select("_id fullName profilePic");
     if (!user) return res.status(404).json({ message: "User not found" });
 
     res.status(200).json(user);
@@ -26,3 +32,4 @@ export const getUserById = async (req, res) => {
     res.status(500).json({ message: "Server error" });
   }
 };
+
