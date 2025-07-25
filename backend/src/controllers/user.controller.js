@@ -17,7 +17,7 @@ export const searchUsers = async (req, res) => {
 };
 export const getUserById = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id).select("-password");
+    const user = await User.findById(req.params.id).select("_id fullName profilePic");
     if (!user) return res.status(404).json({ message: "User not found" });
 
     res.status(200).json(user);
