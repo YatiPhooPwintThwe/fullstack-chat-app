@@ -11,10 +11,10 @@ import { connectDB } from "./lib/db.js";
 import { initSocket } from "./lib/socket.js";
 
 dotenv.config();
-
+const app = express();
 const PORT = process.env.PORT || 5001;
 const __dirname = path.resolve();
-const app = express();
+
 const server = http.createServer(app);
 
 // ✅ Middleware
@@ -22,7 +22,7 @@ app.use(express.json({ limit: "5mb" }));
 app.use(cookieParser());
 app.use(
   cors({
-    origin: process.env.CLIENT_URL, // Replace with your frontend domain in production
+    origin: "http://localhost:5173", // Replace with your frontend domain in production
     credentials: true,
   })
 );
@@ -34,9 +34,9 @@ app.use("/api/messages", messageRoutes);
 
 // ✅ Serve frontend in production
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static(path.join(__dirname, "frontend/dist")));
+  app.use(express.static(path.join(__dirname, "/frontend/dist")));
   app.get("*", (req, res) => {
-    res.sendFile(path.join(__dirname, "frontend/dist", "index.html"));
+    res.sendFile(path.resolve(__dirname, "frontend","dist", "index.html"));
   });
 }
 
