@@ -1,12 +1,12 @@
 import { Server } from "socket.io";
 
 let io;
-const userSocketMap = {}; // { userId: socketId }
+const userSocketMap = {}; 
 
 export const initSocket = (server) => {
   io = new Server(server, {
     cors: {
-      origin: process.env.CLIENT_URL, // ✅ or your deployed frontend domain
+      origin: process.env.CLIENT_URL, 
       credentials: true,
     },
   });

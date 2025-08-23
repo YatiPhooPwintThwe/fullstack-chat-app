@@ -3,7 +3,7 @@ import { MessageSquare, Settings, LogOut } from "lucide-react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useNavigate } from "react-router-dom";
 
-const Sidebar = () => {
+const SidebarNav = () => {
   const { authUser, logout } = useAuthStore();
   const navigate = useNavigate();
   const location = useLocation();
@@ -14,7 +14,7 @@ const Sidebar = () => {
   };
 
   return (
-    <aside className="w-40 bg-base-100 border-r border-base-300 p-4 flex flex-col justify-between text-base-content">
+    <aside className="hidden md:flex w-40 bg-base-100 border-r border-base-300 p-4 flex-col justify-between text-base-content">
       <div>
         {/* Logo */}
         <div className="flex items-center gap-3 mb-14 px-2">
@@ -22,15 +22,13 @@ const Sidebar = () => {
           <span className="text-xl font-bold text-base-content">Noti</span>
         </div>
 
-        {/* Navigation with more space and hover style */}
+        {/* Navigation */}
         <nav className="flex flex-col gap-6">
           <NavLink
             to="/"
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
-                isActive
-                  ? "font-bold bg-gray-100"
-                  : "text-gray-700 hover:bg-gray-100"
+                isActive ? "font-bold bg-gray-100" : "text-gray-700 hover:bg-gray-100"
               }`
             }
           >
@@ -42,9 +40,7 @@ const Sidebar = () => {
             to="/profile"
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
-                isActive
-                  ? "font-bold bg-gray-100"
-                  : "text-gray-700 hover:bg-gray-100"
+                isActive ? "font-bold bg-gray-100" : "text-gray-700 hover:bg-gray-100"
               }`
             }
           >
@@ -56,7 +52,6 @@ const Sidebar = () => {
                   location.pathname === "/profile" ? "ring-2 ring-black" : ""
                 }`}
               />
-              {/* Green active badge */}
               <span
                 className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full ring-2 ring-white"
                 title="Active now"
@@ -69,9 +64,7 @@ const Sidebar = () => {
             to="/settings"
             className={({ isActive }) =>
               `flex items-center gap-3 px-3 py-2 rounded-xl transition-all ${
-                isActive
-                  ? "font-bold bg-gray-100"
-                  : "text-gray-700 hover:bg-gray-100"
+                isActive ? "font-bold bg-gray-100" : "text-gray-700 hover:bg-gray-100"
               }`
             }
           >
@@ -81,7 +74,7 @@ const Sidebar = () => {
         </nav>
       </div>
 
-      {/* Logout Button */}
+      {/* Logout */}
       <button
         onClick={handleLogout}
         className="flex items-center gap-3 px-3 py-2 text-red-600 hover:text-red-800 mt-8 transition-all"
@@ -93,4 +86,4 @@ const Sidebar = () => {
   );
 };
 
-export default Sidebar;
+export default SidebarNav;
