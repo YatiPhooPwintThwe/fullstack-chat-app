@@ -2,6 +2,7 @@ import { THEMES } from "../constants";
 import { useThemeStore } from "../store/useThemeStore";
 import SidebarNav from "../components/SidebarNav.jsx";
 import { Send } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const PREVIEW_MESSAGES = [
   { id: 1, content: "Any plans for weekend?", isSent: false },
@@ -10,24 +11,23 @@ const PREVIEW_MESSAGES = [
 
 const ChangeTheme = () => {
   const { theme, setTheme } = useThemeStore();
+  const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex bg-base-100 text-base-content transition-colors duration-300">
       <SidebarNav />
 
       {/* Main Content */}
-      <div className="flex-1 px-6 py-8 overflow-auto">
-        <div className="max-w-6xl mx-auto space-y-8">
+      <div className="flex-1 px-6 py-8 overflow-auto flex flex-col items-center">
+        <div className="w-full max-w-6xl space-y-8">
           {/* Header */}
           <div className="flex flex-col gap-1">
             <h2 className="text-lg font-semibold">Theme</h2>
-            <p className="text-sm text-base-content/70">
-              Choose a theme for your chat interface
-            </p>
+            <p className="text-sm text-base-content/70">Choose a theme for your chat interface</p>
           </div>
 
           {/* Theme Grid */}
-          <div className="grid grid-cols-5 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2">
             {THEMES.map((t) => (
               <button
                 key={t}
@@ -36,15 +36,12 @@ const ChangeTheme = () => {
                 }`}
                 onClick={() => setTheme(t)}
               >
-                <div
-                  className="relative h-6 w-full rounded-sm overflow-hidden"
-                  data-theme={t}
-                >
+                <div className="relative h-6 w-full rounded-sm overflow-hidden" data-theme={t}>
                   <div className="absolute inset-0 grid grid-cols-4 gap-px p-0.5">
-                    <div className="rounded-sm bg-primary h-full"></div>
-                    <div className="rounded-sm bg-secondary h-full"></div>
-                    <div className="rounded-sm bg-accent h-full"></div>
-                    <div className="rounded-sm bg-neutral h-full"></div>
+                    <div className="rounded-sm bg-primary h-full" />
+                    <div className="rounded-sm bg-secondary h-full" />
+                    <div className="rounded-sm bg-accent h-full" />
+                    <div className="rounded-sm bg-neutral h-full" />
                   </div>
                 </div>
                 <span className="text-[10px] font-medium truncate w-full text-center">
@@ -77,25 +74,16 @@ const ChangeTheme = () => {
                   {/* Chat Messages */}
                   <div className="p-4 space-y-4 min-h-[200px] max-h-[200px] overflow-y-auto bg-base-100">
                     {PREVIEW_MESSAGES.map((message) => (
-                      <div
-                        key={message.id}
-                        className={`flex ${
-                          message.isSent ? "justify-end" : "justify-start"
-                        }`}
-                      >
+                      <div key={message.id} className={`flex ${message.isSent ? "justify-end" : "justify-start"}`}>
                         <div
                           className={`max-w-[80%] rounded-xl p-3 shadow-sm ${
-                            message.isSent
-                              ? "bg-primary text-primary-content"
-                              : "bg-base-200"
+                            message.isSent ? "bg-primary text-primary-content" : "bg-base-200"
                           }`}
                         >
                           <p className="text-sm">{message.content}</p>
                           <p
                             className={`text-[10px] mt-1.5 ${
-                              message.isSent
-                                ? "text-primary-content/70"
-                                : "text-base-content/70"
+                              message.isSent ? "text-primary-content/70" : "text-base-content/70"
                             }`}
                           >
                             12:00 PM
@@ -124,6 +112,16 @@ const ChangeTheme = () => {
               </div>
             </div>
           </div>
+        </div>
+
+        {/* Back to Home */}
+        <div className="mt-6">
+          <button
+            onClick={() => navigate("/")}
+            className="px-6 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500 text-sm"
+          >
+            Back to Home
+          </button>
         </div>
       </div>
     </div>

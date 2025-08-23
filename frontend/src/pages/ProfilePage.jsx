@@ -7,9 +7,8 @@ import toast from "react-hot-toast";
 
 const ProfilePage = () => {
   const navigate = useNavigate();
-  const { authUser, isUpdatingProfile, updateProfileImage,
-    updateProfileInfo, logout } = useAuthStore();
-  const [selectedImg, setSelectedImg] = useState(null);
+  const { authUser, isUpdatingProfile, updateProfileImage, updateProfileInfo, logout } =
+    useAuthStore();
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
 
@@ -21,16 +20,13 @@ const ProfilePage = () => {
   }, [authUser]);
 
   const handleImageUpload = async (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.readAsDataURL(file);
-
     reader.onload = async () => {
-    const base64Image = reader.result;
-    await updateProfileImage(base64Image);
-    
+      const base64Image = reader.result;
+      await updateProfileImage(base64Image);
     };
   };
 
@@ -56,7 +52,7 @@ const ProfilePage = () => {
       <SidebarNav />
 
       {/* Main Content */}
-      <main className="flex-1 flex justify-center items-center p-6">
+      <main className="relative flex-1 flex flex-col items-center p-6">
         <div className="flex flex-col justify-center items-center p-6 sm:p-12 w-full max-w-lg">
           <div className="backdrop-blur-md bg-base-200/50 rounded-2xl px-6 py-6 shadow-lg w-full max-w-sm border border-base-300">
             <div className="text-center mb-6">
@@ -90,9 +86,7 @@ const ProfilePage = () => {
                 </label>
               </div>
               <p className="text-sm text-zinc-400 mt-2 mb-4 text-center">
-                {isUpdatingProfile
-                  ? "Uploading..."
-                  : "Click the camera to update your photo"}
+                {isUpdatingProfile ? "Uploading..." : "Click the camera to update your photo"}
               </p>
             </div>
 
@@ -138,6 +132,16 @@ const ProfilePage = () => {
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Back to Home */}
+        <div className="mt-6">
+          <button
+            onClick={() => navigate("/")}
+            className="px-6 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500 text-sm"
+          >
+            Back to Home
+          </button>
         </div>
       </main>
     </div>

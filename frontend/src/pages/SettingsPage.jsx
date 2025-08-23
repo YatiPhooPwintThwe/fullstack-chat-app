@@ -38,17 +38,12 @@ const SettingsPage = () => {
 
   const handleForgotPassword = async () => {
     try {
-      await axiosInstance.post("/auth/forgot-password", {
-        email: authUser.email,
-      });
-
-      await logout(); // ✅ log out the user
+      await axiosInstance.post("/auth/forgot-password", { email: authUser.email });
+      await logout();
       toast.success("Reset email sent! Check your inbox.");
       navigate("/login");
     } catch (error) {
-      toast.error(
-        error?.response?.data?.message || "Failed to send reset email"
-      );
+      toast.error(error?.response?.data?.message || "Failed to send reset email");
     }
   };
 
@@ -56,8 +51,8 @@ const SettingsPage = () => {
     <div className="min-h-screen flex bg-base-100 text-base-content transition-colors duration-300">
       <SidebarNav />
 
-      <main className="flex-1 flex justify-center items-center p-6">
-        <div className="backdrop-blur-md bg-white/5 dark:bg-white/10 rounded-xl p-8 shadow-lg w-full max-w-2xl aspect-square border border-white/10">
+      <main className="relative flex-1 flex flex-col items-center p-6">
+        <div className="backdrop-blur-md bg-white/5 dark:bg-white/10 rounded-xl p-8 shadow-lg w-full max-w-2xl border border-white/10">
           <h1 className="text-xl font-semibold text-center mb-10">Settings</h1>
 
           <div className="flex flex-col gap-10">
@@ -95,13 +90,21 @@ const SettingsPage = () => {
           </div>
         </div>
 
+        {/* Back to Home */}
+        <div className="mt-6">
+          <button
+            onClick={() => navigate("/")}
+            className="px-6 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500 text-sm"
+          >
+            Back 
+          </button>
+        </div>
+
         {/* Password Form Overlay */}
         {showPasswordForm && (
           <div className="absolute inset-0 flex items-center justify-center z-50 bg-black/50 backdrop-blur-sm">
             <div className="bg-base-200 p-6 rounded-xl w-full max-w-sm shadow-lg relative">
-              <h2 className="text-lg font-semibold mb-4 text-center">
-                Change Password
-              </h2>
+              <h2 className="text-lg font-semibold mb-4 text-center">Change Password</h2>
 
               <div className="flex flex-col gap-4">
                 {/* Old Password */}
@@ -151,10 +154,7 @@ const SettingsPage = () => {
                 {/* Forgot button if password is incorrect */}
                 {showForgotButton && (
                   <div className="text-right">
-                    <button
-                      onClick={handleForgotPassword}
-                      className="text-xs text-blue-500 underline mt-1"
-                    >
+                    <button onClick={handleForgotPassword} className="text-xs text-blue-500 underline mt-1">
                       Forgot Password?
                     </button>
                   </div>
@@ -165,16 +165,10 @@ const SettingsPage = () => {
 
                 {/* Action buttons */}
                 <div className="flex gap-4 mt-2">
-                  <button
-                    className="btn btn-primary flex-1"
-                    onClick={handlePasswordChange}
-                  >
+                  <button className="btn btn-primary flex-1" onClick={handlePasswordChange}>
                     Submit
                   </button>
-                  <button
-                    className="btn btn-outline flex-1"
-                    onClick={() => setShowPasswordForm(false)}
-                  >
+                  <button className="btn btn-outline flex-1" onClick={() => setShowPasswordForm(false)}>
                     Cancel
                   </button>
                 </div>

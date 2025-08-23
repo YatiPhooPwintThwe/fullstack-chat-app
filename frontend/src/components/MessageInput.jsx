@@ -1,7 +1,6 @@
 import { useRef, useState, useEffect } from "react";
 import { useChatStore } from "../store/useChatStore.js";
-
-import { Image, Send, X, Smile } from "lucide-react";
+import { Image as ImageIcon, Send, X, Smile } from "lucide-react";
 import toast from "react-hot-toast";
 import Picker from "@emoji-mart/react";
 import data from "@emoji-mart/data";
@@ -23,15 +22,15 @@ const MessageInput = ({
   const { sendMessage, updateMessage } = useChatStore();
   const [playSendSound] = useSound("/sound/sentSound.mp3", { volume: 0.5 });
 
+  // preload text if editing
   useEffect(() => {
-    if (editingMessage) {
-      setText(editingMessage.text);
-    }
+    if (editingMessage) setText(editingMessage.text);
   }, [editingMessage]);
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0];
-    if (!file?.type.startsWith("image/")) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type?.startsWith("image/")) {
       toast.error("Please select an image file");
       return;
     }
@@ -64,11 +63,12 @@ const MessageInput = ({
       setText("");
       removeImage();
       setReplyingTo(null);
-    } catch (error) {
-      console.error("Failed to send message:", error);
+    } catch (err) {
+      console.error("Failed to send message:", err);
     }
   };
 
+  // close emoji picker when clicking outside
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (
@@ -79,8 +79,8 @@ const MessageInput = ({
         setShowEmojiPicker(false);
       }
     };
-    document.addEventListener("click", handleClickOutside);
-    return () => document.removeEventListener("click", handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
@@ -88,11 +88,8 @@ const MessageInput = ({
       {replyingTo && (
         <div className="flex items-center justify-between px-4 pt-1 pb-2 border-l-4 border-zinc-400 bg-zinc-100 dark:bg-zinc-800 rounded-t-md">
           <div className="text-sm text-zinc-700 dark:text-zinc-300 truncate">
-            <span className="font-semibold">
-              {replyingTo.senderName || "You"}
-            </span>{" "}
-            replied to:{" "}
-            <span className="italic truncate">{replyingTo.text}</span>
+            <span className="font-semibold">{replyingTo.senderName || "You"}</span>{" "}
+            replied to: <span className="italic truncate">{replyingTo.text}</span>
           </div>
           <button
             onClick={() => setReplyingTo(null)}
@@ -141,7 +138,7 @@ const MessageInput = ({
 
       <form
         onSubmit={handleSendMessage}
-        className="flex items-center gap-2 px-2 py-1 bg-transparent"
+        className="flex items-center gap-2 px-2 py-1 bg-transparent pb-[env(safe-area-inset-bottom)]"
       >
         <input
           type="text"
@@ -151,36 +148,42 @@ const MessageInput = ({
           onChange={(e) => setText(e.target.value)}
         />
 
+        {/* Hidden file input */}
         <input
+          id="chat-image"
+          ref={fileInputRef}
           type="file"
           accept="image/*"
-          className="hidden"
-          ref={fileInputRef}
+          capture="environment"
+          className="sr-only"
           onChange={handleImageChange}
         />
 
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          className={`hidden sm:flex btn btn-circle ${
-            imagePreview ? "text-emerald-500" : "text-zinc-400"
-          }`}
+        {/* ALWAYS visible image button (mobile-friendly) */}
+        <label
+          htmlFor="chat-image"
+          className={`btn btn-circle ${imagePreview ? "text-emerald-500" : "text-zinc-400"}`}
+          title="Attach image"
         >
-          <Image size={20} />
-        </button>
+          <ImageIcon size={20} />
+        </label>
 
+        {/* Emoji */}
         <button
           type="button"
-          onClick={() => setShowEmojiPicker((prev) => !prev)}
+          onClick={() => setShowEmojiPicker((p) => !p)}
           className="btn btn-circle text-zinc-400 emoji-btn"
+          title="Emoji"
         >
           <Smile size={20} />
         </button>
 
+        {/* Send */}
         <button
           type="submit"
           className="btn btn-sm btn-circle"
           disabled={!text.trim() && !imagePreview}
+          title="Send"
         >
           <Send size={20} />
         </button>
@@ -188,7 +191,7 @@ const MessageInput = ({
         {showEmojiPicker && (
           <div
             ref={emojiPickerRef}
-            className="emoji-picker-wrapper absolute bottom-20 right-4 z-50"
+            className="fixed bottom-24 right-3 sm:right-4 z-50"
           >
             <Picker
               data={data}
