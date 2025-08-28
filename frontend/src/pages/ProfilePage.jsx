@@ -140,7 +140,7 @@ const ProfilePage = () => {
             onClick={() => navigate("/")}
             className="px-6 py-2 bg-blue-400 text-white rounded-lg hover:bg-blue-500 text-sm"
           >
-            Back to Home
+            Back
           </button>
         </div>
       </main>

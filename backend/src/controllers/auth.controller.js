@@ -1,4 +1,3 @@
-
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { generateToken } from "../lib/utils.js";
